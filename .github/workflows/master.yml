@@ -47,7 +47,7 @@ jobs:
         
     - name: Make archives
       run: |
-        zip --junk-paths ${{steps.release.outputs.windows_release}} dist_windows
+        zip -r ${{steps.release.outputs.windows_release}} dist_windows
         tar -czvf ${{steps.release.outputs.linux_release}} dist_linux
       
     - name: Create Release
