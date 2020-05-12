@@ -24,7 +24,7 @@
         <None Include="..\lib\libif_cfs.dll" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
     <ItemGroup>
-        <None Include="..\azure-pipelines.yml" />
+        <None Include="..\.github\workflows\master.yml" />
         <None Include="..\README.md" />
     </ItemGroup>
 </Project>
