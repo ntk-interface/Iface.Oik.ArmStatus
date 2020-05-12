@@ -47,10 +47,10 @@ jobs:
         
     - name: Make archives
       run: |
-        zip -jr ${{steps.release.outputs.windows_release}} dist_windows
+        zip -rD ${{steps.release.outputs.windows_release}} dist_windows
         tar -czf ${{steps.release.outputs.linux_release}} -C dist_linux .
       
-    - name: Create Release
+    - name: Create Github Release
       id: create_release
       uses: actions/create-release@v1
       env:
@@ -59,7 +59,7 @@ jobs:
         tag_name: ${{steps.version.outputs.id}}
         release_name: ${{env.APP_NAME}} ${{steps.version.outputs.id}}
         
-    - name: Upload Windows Release
+    - name: Upload Github Release (Windows)
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -69,7 +69,7 @@ jobs:
         asset_name: ${{steps.release.outputs.windows_release}}
         asset_content_type: application/zip
 
-    - name: Upload Linux Release
+    - name: Upload Github Release (Linux)
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
