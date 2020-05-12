@@ -47,8 +47,8 @@ jobs:
         
     - name: Make archives
       run: |
-        zip -r ${{steps.release.outputs.windows_release}} dist_windows
-        tar -czvf ${{steps.release.outputs.linux_release}} dist_linux
+        zip -jr ${{steps.release.outputs.windows_release}} dist_windows
+        tar -czf ${{steps.release.outputs.linux_release}} -C dist_linux .
       
     - name: Create Release
       id: create_release
