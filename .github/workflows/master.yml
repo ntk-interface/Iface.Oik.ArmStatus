@@ -47,7 +47,7 @@ jobs:
         
     - name: Make archives
       run: |
-        7z a ${{steps.release.outputs.windows_release}} dist_windows/*
+        7z a ${{steps.release.outputs.windows_release}} ./dist_windows/*
         tar -czf ${{steps.release.outputs.linux_release}} -C dist_linux .
       
     - name: Create Github Release
