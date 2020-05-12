@@ -17,14 +17,12 @@ jobs:
     - uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.101
-    - name: Restore
-      run: dotnet restore
     - name: Build
-      run: dotnet build -c Release --no-restore
+      run: dotnet build -c Release
     - name: Test
-      run: dotnet test --no-restore
+      run: dotnet test
     - name: Publish
-      run: dotnet publish -c Release --no-restore -r win-x64 --self-contained false -o dist/bin
+      run: dotnet publish -c Release -r win-x64 --self-contained false -o dist/bin
     - name: Create empty configs folder
       run: mkdir dist/configs
     - name: Upload artifact
