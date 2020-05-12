@@ -33,7 +33,7 @@ jobs:
       run: dotnet publish -c Release -r win-x64 --self-contained false -o dist/bin
       
     - name: Copy config samples
-      run: cp sample_configs dist/sample_configs
+      run: cp -r sample_configs dist/sample_configs
       
     - name: Create empty configs folder
       run: mkdir dist/configs
