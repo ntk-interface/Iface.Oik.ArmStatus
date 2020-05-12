@@ -9,7 +9,7 @@ on:
 env:
    APP_NAME: Iface.Oik.ArmStatus
    YEAR: $(date +'%Y')
-   VERSION: ${{env.YEAR}}.${{github.RUN_NUMBER}}
+   VERSION: $(YEAR).$(GITHUB_RUN_NUMBER)
 
 jobs:
   build:
