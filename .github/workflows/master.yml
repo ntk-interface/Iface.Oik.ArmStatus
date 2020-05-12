@@ -9,7 +9,7 @@ on:
 env:
    APP_NAME: Iface.Oik.ArmStatus
    YEAR: $(date +'%Y')
-   VERSION: $(YEAR).$(GITHUB_RUN_NUMBER)
+   APP_VERSION: $YEAR.$GITHUB_RUN_NUMBER
 
 jobs:
   build:
@@ -32,5 +32,5 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v1
       with:
-        name: ${{env.APP_NAME}}.${{env.VERSION}}
+        name: ${{env.APP_NAME}}.${{env.APP_VERSION}}
         path: dist
