@@ -1,36 +1,45 @@
 name: master
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: [push, pull_request]
     
 env:
    APP_NAME: Iface.Oik.ArmStatus
-   YEAR: $(date +'%Y')
-   APP_VERSION: $YEAR.$GITHUB_RUN_NUMBER
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
+    - name: Get current year
+      id: date
+      run: echo "::set-output name=year::$(date +'%y')"
+      
+    - name: Get dist name
+      id: dist
+      run: echo "::set-output name=name::${{env.APP_NAME}}.${{steps.date.outputs.year}}.${{github.run_number}}"
+      
     - uses: actions/checkout@v2
+      - 
 #    - uses: actions/setup-dotnet@v1
 #      with:
 #        dotnet-version: 3.1.101
+        
     - name: Build
       run: dotnet build -c Release
+      
     - name: Test
       run: dotnet test
+      
     - name: Publish
       run: dotnet publish -c Release -r win-x64 --self-contained false -o dist/bin
+      
     - name: Copy config samples
-      run: xcopy sample_configs dist\sample_configs\
+      run: cp sample_configs dist\sample_configs\
+      
     - name: Create empty configs folder
-      run: mkdir dist\configs\
+      run: mkdir dist/configs
+      
     - name: Upload artifact
       uses: actions/upload-artifact@v1
       with:
-        name: ${{env.APP_NAME}}.${{env.APP_VERSION}}
+        name: ${{steps.dist.outputs.name}}
         path: dist
