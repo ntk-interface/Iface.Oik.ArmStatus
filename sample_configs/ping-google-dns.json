@@ -1,0 +1,8 @@
+{
+	"Worker": "PingWorker",
+	"Options": {
+		"Host": "8.8.8.8",
+		"SetStatus": "24:2:2",
+		"SetAnalog": "24:2:2"
+	}
+}

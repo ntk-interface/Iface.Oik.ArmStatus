@@ -1,0 +1,9 @@
+{
+	"Worker": "PortWorker",
+	"Options": {
+		"Host": "localhost",
+		"Port": 3306,
+		"SetStatus": "24:2:205",
+		"Timeout": 100
+	}
+}

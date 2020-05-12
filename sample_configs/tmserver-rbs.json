@@ -1,0 +1,7 @@
+{
+	"Worker": "TmServerWorker",
+	"Options": {
+		"ServerName": "RBS",
+		"SetStatus": "24:2:311"
+	}
+}

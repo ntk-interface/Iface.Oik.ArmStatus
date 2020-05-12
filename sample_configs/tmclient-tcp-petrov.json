@@ -1,0 +1,7 @@
+{
+	"Worker": "TmClientWorker",
+	"Options": {
+		"ClientName": "TCP: Petrov",
+		"SetStatus": "24:2:13"
+	}
+}

@@ -1,0 +1,7 @@
+{
+	"Worker": "TmClientWorker",
+	"Options": {
+		"ClientName": "Петров",
+		"SetStatus": "24:2:12"
+	}
+}

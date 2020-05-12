@@ -1,0 +1,8 @@
+{
+	"Worker": "TmServerWorker",
+	"Options": {
+		"ServerName": "TMS2",
+		"SetStatus": "24:2:312",
+		"WorkInterval": 10000
+	}
+}
