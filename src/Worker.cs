@@ -13,7 +13,8 @@ namespace Iface.Oik.ArmStatus
     private string      _name;
     private IOikDataApi _api;
     private WorkerCache _cache;
-    private int         _workInterval = 5000;
+
+    private int _workInterval = 5000;
 
 
     public Worker SetName(string name)
@@ -24,7 +25,7 @@ namespace Iface.Oik.ArmStatus
     }
 
 
-    public Worker SetApis(IOikDataApi api, WorkerCache cache)
+    public Worker Initialize(IOikDataApi api, WorkerCache cache)
     {
       _api   = api;
       _cache = cache;
@@ -33,7 +34,7 @@ namespace Iface.Oik.ArmStatus
     }
 
 
-    public void SetWorkInterval(int workInterval)
+    protected void SetWorkInterval(int workInterval)
     {
       _workInterval = workInterval;
     }
@@ -41,7 +42,7 @@ namespace Iface.Oik.ArmStatus
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-      await Task.Delay(500, stoppingToken);
+      await Task.Delay(500, stoppingToken); // такое асинхронное ожидание даёт хосту возможность завершить инициализацию
 
       while (!stoppingToken.IsCancellationRequested)
       {

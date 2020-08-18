@@ -36,8 +36,8 @@ namespace Iface.Oik.ArmStatus
         try
         {
           var worker = CreateWorker(allWorkers, name, File.ReadAllText(file));
-          services.AddSingleton<IHostedService>(provider => worker.SetApis(provider.GetService<IOikDataApi>(),
-                                                                           provider.GetService<WorkerCache>()));
+          services.AddSingleton<IHostedService>(provider => worker.Initialize(provider.GetService<IOikDataApi>(),
+                                                                              provider.GetService<WorkerCache>()));
 
           workersCount++;
         }
