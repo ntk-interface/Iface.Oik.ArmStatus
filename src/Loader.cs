@@ -13,10 +13,7 @@ namespace Iface.Oik.ArmStatus
 {
   public static class Loader
   {
-    private static readonly string ConfigsPath = Path.Combine(
-      Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-      "..",
-      "configs");
+    private static readonly string ConfigsPath = Path.Combine(AppContext.BaseDirectory, "configs");
 
 
     public static bool AddWorkers(this IServiceCollection services)

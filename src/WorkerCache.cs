@@ -13,7 +13,7 @@ namespace Iface.Oik.ArmStatus
 
     private readonly ICfsApi _cfsApi;
 
-    private readonly List<TmServer> _tmServersCache         = new List<TmServer>();
+    private readonly List<TmServer> _tmServersCache         = new();
     private          DateTime       _tmServersCacheLastPoll = DateTime.UnixEpoch;
 
 
