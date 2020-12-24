@@ -20,7 +20,7 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
-        <None Include="..\lib\libif_cfs.so" CopyToOutputDirectory="PreserveNewest" />
-        <None Include="..\lib\libif_cfs.dll" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="..\lib\libif_cfs.dll" Condition="$([MSBuild]::IsOSPlatform('Windows'))" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="..\lib\libif_cfs.so" Condition="$([MSBuild]::IsOSPlatform('Linux'))" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 </Project>
