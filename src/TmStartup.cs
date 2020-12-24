@@ -21,10 +21,11 @@ namespace Iface.Oik.ArmStatus
 
     private static string _host;
 
-    private static int        _tmCid;
-    private static TmUserInfo _userInfo;
-    private static uint       _stopEventHandle;
-    private static IntPtr     _cfCid;
+    private static int              _tmCid;
+    private static TmUserInfo       _userInfo;
+    private static TmServerFeatures _serverFeatures;
+    private static uint             _stopEventHandle;
+    private static IntPtr           _cfCid;
 
     private readonly IHostApplicationLifetime _applicationLifetime;
     private readonly ICommonInfrastructure    _infr;
@@ -47,7 +48,7 @@ namespace Iface.Oik.ArmStatus
 
       _host = commandLineArgs.ElementAtOrDefault(2) ?? ".";
 
-      (_tmCid, _userInfo, _stopEventHandle) = Tms.InitializeAsTaskWithoutSql(
+      (_tmCid, _userInfo, _serverFeatures, _stopEventHandle) = Tms.InitializeAsTaskWithoutSql(
         new TmOikTaskOptions
         {
           TraceName    = TraceName,
@@ -82,7 +83,7 @@ namespace Iface.Oik.ArmStatus
 
     public override Task StartAsync(CancellationToken cancellationToken)
     {
-      _infr.InitializeTmWithoutSql(_tmCid, _userInfo);
+      _infr.InitializeTmWithoutSql(_tmCid, _userInfo, _serverFeatures);
       _cfsApi.SetCfIdAndHost(_cfCid, _host);
       return base.StartAsync(cancellationToken);
     }
