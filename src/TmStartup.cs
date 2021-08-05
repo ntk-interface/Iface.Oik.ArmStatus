@@ -24,7 +24,7 @@ namespace Iface.Oik.ArmStatus
     private static int              _tmCid;
     private static TmUserInfo       _userInfo;
     private static TmServerFeatures _serverFeatures;
-    private static uint             _stopEventHandle;
+    private static IntPtr           _stopEventHandle;
     private static IntPtr           _cfCid;
 
     private readonly IHostApplicationLifetime _applicationLifetime;
