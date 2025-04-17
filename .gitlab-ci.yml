@@ -24,11 +24,11 @@ build:
     - 'dotnet publish -c Release -r win-x64 -p:CopyOutputSymbolsToPublishDirectory=false -p:PublishSingleFile=true --self-contained false -o ${BINARY_PATH_WINDOWS}'
     - 'dotnet publish -c Release -r linux-x64 -p:CopyOutputSymbolsToPublishDirectory=false -p:PublishSingleFile=true --self-contained false -o ${BINARY_PATH_LINUX}'
     # создаем пустой каталог для конфигураций
-    - 'New-Item -ItemType Directory -Path "${BINARY_PATH_WINDOWS}/configs"'
-    - 'New-Item -ItemType Directory -Path "${BINARY_PATH_LINUX}/configs"'
+    - 'New-Item -ItemType Directory -Path ${BINARY_PATH_WINDOWS}/configs'
+    - 'New-Item -ItemType Directory -Path ${BINARY_PATH_LINUX}/configs'
     # копируем каталог с примерами конфигураций
-    - 'Copy-Item -Path "sample_configs" -Destination "${BINARY_PATH_WINDOWS}" -Recurse'
-    - 'Copy-Item -Path "sample_configs" -Destination "${BINARY_PATH_LINUX}" -Recurse'
+    - 'Copy-Item -Path sample_configs -Destination ${BINARY_PATH_WINDOWS} -Recurse'
+    - 'Copy-Item -Path sample_configs -Destination ${BINARY_PATH_LINUX} -Recurse'
   artifacts:
     name: '${RELEASE_NAME}'
     paths:
@@ -42,4 +42,4 @@ deploy:
     GIT_STRATEGY: none
   script:
     - 'Compress-Archive ${BINARY_PATH_WINDOWS}/* ${DEPLOY_PATH}/${RELEASE_NAME_WINDOWS}'
-    - 'tar -cvzf ${DEPLOY_PATH}/${RELEASE_NAME_LINUX} ${BINARY_PATH_LINUX}'
+    - 'tar -cvzf ${DEPLOY_PATH}/${RELEASE_NAME_LINUX} -C ${BINARY_PATH_LINUX} .'
