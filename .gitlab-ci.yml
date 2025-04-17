@@ -41,5 +41,5 @@ deploy:
   variables:
     GIT_STRATEGY: none
   script:
-    - 'Compress-Archive ${BINARY_PATH_WINDOWS}/* ${DEPLOY_PATH}/${RELEASE_NAME_WINDOWS}'
+    - '7z a -tzip ${DEPLOY_PATH}/${RELEASE_NAME_WINDOWS} ./${BINARY_PATH_WINDOWS}/*'
     - 'tar -cvzf ${DEPLOY_PATH}/${RELEASE_NAME_LINUX} -C ${BINARY_PATH_LINUX} .'
