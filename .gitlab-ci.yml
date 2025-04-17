@@ -1,0 +1,45 @@
+variables:
+  MAJOR_VERSION: 25
+  FULL_BUILD_VERSION: '${MAJOR_VERSION}.${CI_PIPELINE_IID}'
+
+  APP_NAME: 'Iface.Oik.ArmStatus'
+  BINARY_PATH: 'bin'
+  BINARY_PATH_WINDOWS: '${BINARY_PATH}/Windows'
+  BINARY_PATH_LINUX: '${BINARY_PATH}/Linux'
+  RELEASE_NAME: '${APP_NAME}.${FULL_BUILD_VERSION}'
+  RELEASE_NAME_WINDOWS: '${RELEASE_NAME}.zip'
+  RELEASE_NAME_LINUX: '${RELEASE_NAME}.tar.gz'
+  
+  DEPLOY_PATH: 'C:\Artifacts\Iface.Oik.ArmStatus'
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+build:
+  stage: build
+  tags:
+    - windows
+  script:
+    - 'dotnet publish -c Release -r win-x64 -p:CopyOutputSymbolsToPublishDirectory=false -p:PublishSingleFile=true --self-contained false -o ${BINARY_PATH_WINDOWS}'
+    - 'dotnet publish -c Release -r linux-x64 -p:CopyOutputSymbolsToPublishDirectory=false -p:PublishSingleFile=true --self-contained false -o ${BINARY_PATH_LINUX}'
+    # создаем пустой каталог для конфигураций
+    - 'New-Item -ItemType Directory -Path ${BINARY_PATH_WINDOWS}/configs'
+    - 'New-Item -ItemType Directory -Path ${BINARY_PATH_LINUX}/configs'
+    # копируем каталог с примерами конфигураций
+    - 'Copy-Item -Path sample_configs -Destination ${BINARY_PATH_WINDOWS} -Recurse'
+    - 'Copy-Item -Path sample_configs -Destination ${BINARY_PATH_LINUX} -Recurse'
+  artifacts:
+    name: '${RELEASE_NAME}'
+    paths:
+      - '${BINARY_PATH}/**/*'
+
+deploy:
+  stage: deploy
+  tags:
+    - windows
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - 'Compress-Archive ${BINARY_PATH_WINDOWS}/* ${DEPLOY_PATH}/${RELEASE_NAME_WINDOWS}'
+    - 'tar -cvzf ${DEPLOY_PATH}/${RELEASE_NAME_LINUX} -C ${BINARY_PATH_LINUX} .'
