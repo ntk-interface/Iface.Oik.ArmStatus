@@ -56,11 +56,12 @@ public class TmStartup : BackgroundService
       },
       new TmInitializeOptions
       {
-        ApplicationName = ApplicationName,
-        Host            = _host,
-        TmServer        = commandLineArgs.ElementAtOrDefault(1) ?? "TMS",
-        User            = commandLineArgs.ElementAtOrDefault(3) ?? "",
-        Password        = commandLineArgs.ElementAtOrDefault(4) ?? "",
+        ApplicationName    = ApplicationName,
+        Host               = _host,
+        TmServer           = commandLineArgs.ElementAtOrDefault(1) ?? "TMS",
+        User               = commandLineArgs.ElementAtOrDefault(3) ?? "",
+        Password           = commandLineArgs.ElementAtOrDefault(4) ?? "",
+        IgnoreLinuxSignals = true,
       });
 
     CfsConnect();
