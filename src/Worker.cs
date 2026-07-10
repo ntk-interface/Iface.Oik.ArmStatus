@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -46,7 +47,14 @@ public abstract class Worker : BackgroundService
 
     while (!stoppingToken.IsCancellationRequested)
     {
-      await DoWork();
+      try
+      {
+        await DoWork();
+      }
+      catch (Exception ex)
+      {
+        LogError(ex.Message);
+      }
       await Task.Delay(_workInterval, stoppingToken);
     }
   }
