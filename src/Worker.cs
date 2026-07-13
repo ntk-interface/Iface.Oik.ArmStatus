@@ -53,7 +53,7 @@ public abstract class Worker : BackgroundService
       }
       catch (Exception ex)
       {
-        LogError(ex.Message);
+        LogError($"{ex.GetType().Name} {ex.Message}");
       }
       await Task.Delay(_workInterval, stoppingToken);
     }
