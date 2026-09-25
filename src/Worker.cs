@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Interfaces;
 using Microsoft.Extensions.Hosting;
-using Newtonsoft.Json.Linq;
 
 namespace Iface.Oik.ArmStatus;
 
@@ -92,7 +91,7 @@ public abstract class Worker : BackgroundService
         return _cache.GetTmServers();
     }
 
-    public virtual void Configure(JObject options) { }
+    public virtual void Configure(WorkerOptions options) { }
 
     protected abstract Task DoWork();
 }

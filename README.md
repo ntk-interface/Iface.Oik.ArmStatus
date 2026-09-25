@@ -104,7 +104,7 @@ protected override async Task DoWork()
 Дополнительно можно переопределить метод конфигурирования обработчика:
 
 ```
-public override void Configure(JObject options)
+public override void Configure(WorkerOptions options)
 {
   ...
 }

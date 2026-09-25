@@ -1,9 +1,8 @@
 using System;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
-using FluentValidation;
+using Iface.Oik.ArmStatus.Util;
 using Iface.Oik.Tm.Interfaces;
-using Newtonsoft.Json.Linq;
 
 namespace Iface.Oik.ArmStatus.Workers;
 
@@ -17,19 +16,10 @@ public class PingWorker : Worker
     private TmAddr _tmStatusToSet;
     private TmAddr _tmAnalogToSet;
 
-    public override void Configure(JObject options)
+    public override void Configure(WorkerOptions options)
     {
-        if (options == null)
-        {
-            throw new Exception("Не заданы настройки");
-        }
-        _options = options.ToObject<Options>();
-        new OptionsValidator().ValidateAndThrow(_options);
-
-        if (_options?.WorkInterval != null)
-        {
-            SetWorkInterval(_options.WorkInterval.Value);
-        }
+        _options = options.Get<Options>();
+        OptionsGuard.ThrowIfNullOrEmpty(_options.Host, "Host");
 
         TmAddr.TryParse(_options.SetStatus, out _tmStatusToSet, TmType.Status);
         TmAddr.TryParse(_options.SetAnalog, out _tmAnalogToSet, TmType.Analog);
@@ -40,23 +30,20 @@ public class PingWorker : Worker
                 "Требуется указать либо адрес сигнала, либо адрес измерения для установки значения"
             );
         }
+
+        if (_options.WorkInterval != null)
+        {
+            SetWorkInterval(_options.WorkInterval.Value);
+        }
     }
 
     private class Options
     {
-        public string Host { get; set; }
-        public string SetStatus { get; set; }
-        public string SetAnalog { get; set; }
-        public int? Timeout { get; set; }
-        public int? WorkInterval { get; set; }
-    }
-
-    private class OptionsValidator : AbstractValidator<Options>
-    {
-        public OptionsValidator()
-        {
-            RuleFor(o => o.Host).NotNull().NotEmpty();
-        }
+        public string Host { get; init; }
+        public string SetStatus { get; init; }
+        public string SetAnalog { get; init; }
+        public int? Timeout { get; init; }
+        public int? WorkInterval { get; init; }
     }
 
     protected override async Task DoWork()

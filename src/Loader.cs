@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
+using Iface.Oik.ArmStatus.Util;
 using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Newtonsoft.Json;
 
 namespace Iface.Oik.ArmStatus;
 
@@ -72,7 +73,7 @@ public static class Loader
 
     public static Worker CreateWorker(IEnumerable<Type> allWorkers, string name, string configText)
     {
-        var config = JsonConvert.DeserializeObject<WorkerConfig>(configText);
+        var config = JsonSerializer.Deserialize<WorkerConfig>(configText, JsonSettings.Options);
 
         var worker = CreateWorkerInstance(allWorkers, config.Worker);
         if (worker == null)
@@ -80,7 +81,7 @@ public static class Loader
             throw new Exception($"Не найден обработчик {config.Worker}");
         }
 
-        worker.SetName(name).Configure(config.Options);
+        worker.SetName(name).Configure(new WorkerOptions(config.Options));
 
         return worker;
     }
