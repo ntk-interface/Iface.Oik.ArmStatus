@@ -9,40 +9,46 @@ namespace Iface.Oik.ArmStatus;
 
 public class Program
 {
-  public static void Main(string[] args)
-  {
-    try
+    public static void Main(string[] args)
     {
-      TmStartup.Connect();
-    }
-    catch (Exception ex)
-    {
-      Tms.PrintError(ex.Message);
-      Environment.Exit(-1);
-    }
+        try
+        {
+            TmStartup.Connect();
+        }
+        catch (Exception ex)
+        {
+            Tms.PrintError(ex.Message);
+            Environment.Exit(-1);
+        }
 
-    Host.CreateDefaultBuilder(args)
-        .ConfigureServices((_, services) =>
-         {
-           // регистрация сервисов ОИК
-           services.AddSingleton<ITmsApi, TmsApi>();
-           services.AddSingleton<IOikSqlApi, OikSqlApi>();
-           services.AddSingleton<IOikDataApi, OikDataApi>();
-           services.AddSingleton<ICommonInfrastructure, CommonInfrastructure>();
-           services.AddSingleton<ServerService>();
-           services.AddSingleton<ICommonServerService>(provider => provider.GetService<ServerService>());
-           services.AddSingleton<ICfsApi, CfsApi>();
+        Host.CreateDefaultBuilder(args)
+            .ConfigureServices(
+                (_, services) =>
+                {
+                    // регистрация сервисов ОИК
+                    services.AddSingleton<ITmsApi, TmsApi>();
+                    services.AddSingleton<IOikSqlApi, OikSqlApi>();
+                    services.AddSingleton<IOikDataApi, OikDataApi>();
+                    services.AddSingleton<ICommonInfrastructure, CommonInfrastructure>();
+                    services.AddSingleton<ServerService>();
+                    services.AddSingleton<ICommonServerService>(provider =>
+                        provider.GetService<ServerService>()
+                    );
+                    services.AddSingleton<ICfsApi, CfsApi>();
 
-           // регистрация фоновых служб
-           services.AddHostedService<TmStartup>();
-           services.AddSingleton<IHostedService>(provider => provider.GetService<ServerService>());
-           services.AddSingleton<WorkerCache>();
-           if (!services.AddWorkers())
-           {
-             Environment.Exit(-1);
-           }
-         })
-        .Build()
-        .Run();
-  }
+                    // регистрация фоновых служб
+                    services.AddHostedService<TmStartup>();
+                    services.AddSingleton<IHostedService>(provider =>
+                        provider.GetService<ServerService>()
+                    );
+                    services.AddSingleton<WorkerCache>();
+                    if (!services.AddWorkers())
+                    {
+                        Environment.Exit(-1);
+                    }
+                }
+            )
+            .Build()
+            .Run();
+    }
 }

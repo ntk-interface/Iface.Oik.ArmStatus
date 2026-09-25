@@ -11,101 +11,88 @@ namespace Iface.Oik.ArmStatus;
 
 public abstract class Worker : BackgroundService
 {
-  private string      _name;
-  private IOikDataApi _api;
-  private WorkerCache _cache;
+    private string _name;
+    private IOikDataApi _api;
+    private WorkerCache _cache;
 
-  private int _workInterval = 5000;
+    private int _workInterval = 5000;
 
-
-  public Worker SetName(string name)
-  {
-    _name = name;
-
-    return this;
-  }
-
-
-  public Worker Initialize(IOikDataApi api, WorkerCache cache)
-  {
-    _api   = api;
-    _cache = cache;
-
-    return this;
-  }
-
-
-  protected void SetWorkInterval(int workInterval)
-  {
-    _workInterval = workInterval;
-  }
-
-
-  protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-  {
-    await Task.Delay(500, stoppingToken); // такое асинхронное ожидание даёт хосту возможность завершить инициализацию
-
-    while (!stoppingToken.IsCancellationRequested)
+    public Worker SetName(string name)
     {
-      try
-      {
-        await DoWork();
-      }
-      catch (Exception ex)
-      {
-        LogError($"{ex.GetType().Name} {ex.Message}");
-      }
-      await Task.Delay(_workInterval, stoppingToken);
-    }
-  }
+        _name = name;
 
-
-  protected void LogDebug(string message)
-  {
-    Tms.PrintDebug($"{_name}: {message}");
-  }
-
-
-  protected void LogError(string message)
-  {
-    Tms.PrintError($"{_name}: {message}");
-  }
-
-
-  protected async Task SetStatus(TmAddr tmAddr, int status)
-  {
-    if (tmAddr == null)
-    {
-      return;
+        return this;
     }
 
-    var (ch, rtu, point) = tmAddr.GetTuple();
-    await _api.SetStatus(ch, rtu, point, status);
-  }
-
-
-  protected async Task SetAnalog(TmAddr tmAddr, float value)
-  {
-    if (tmAddr == null)
+    public Worker Initialize(IOikDataApi api, WorkerCache cache)
     {
-      return;
+        _api = api;
+        _cache = cache;
+
+        return this;
     }
 
-    var (ch, rtu, point) = tmAddr.GetTuple();
-    await _api.SetAnalog(ch, rtu, point, value);
-  }
+    protected void SetWorkInterval(int workInterval)
+    {
+        _workInterval = workInterval;
+    }
 
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        await Task.Delay(500, stoppingToken); // такое асинхронное ожидание даёт хосту возможность завершить инициализацию
 
-  protected IReadOnlyCollection<TmServer> GetTmServers()
-  {
-    return _cache.GetTmServers();
-  }
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                await DoWork();
+            }
+            catch (Exception ex)
+            {
+                LogError($"{ex.GetType().Name} {ex.Message}");
+            }
+            await Task.Delay(_workInterval, stoppingToken);
+        }
+    }
 
+    protected void LogDebug(string message)
+    {
+        Tms.PrintDebug($"{_name}: {message}");
+    }
 
-  public virtual void Configure(JObject options)
-  {
-  }
+    protected void LogError(string message)
+    {
+        Tms.PrintError($"{_name}: {message}");
+    }
 
+    protected async Task SetStatus(TmAddr tmAddr, int status)
+    {
+        if (tmAddr == null)
+        {
+            return;
+        }
 
-  protected abstract Task DoWork();
+        var (ch, rtu, point) = tmAddr.GetTuple();
+        await _api.SetStatus(ch, rtu, point, status);
+    }
+
+    protected async Task SetAnalog(TmAddr tmAddr, float value)
+    {
+        if (tmAddr == null)
+        {
+            return;
+        }
+
+        var (ch, rtu, point) = tmAddr.GetTuple();
+        await _api.SetAnalog(ch, rtu, point, value);
+    }
+
+    protected IReadOnlyCollection<TmServer> GetTmServers()
+    {
+        return _cache.GetTmServers();
+    }
+
+    public virtual void Configure(JObject options) { }
+
+    protected abstract Task DoWork();
 }
