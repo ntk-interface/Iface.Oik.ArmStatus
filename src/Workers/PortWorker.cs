@@ -2,9 +2,8 @@ using System;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using FluentValidation;
+using Iface.Oik.ArmStatus.Util;
 using Iface.Oik.Tm.Interfaces;
-using Newtonsoft.Json.Linq;
 
 namespace Iface.Oik.ArmStatus.Workers;
 
@@ -16,19 +15,12 @@ public class PortWorker : Worker
 
     private TmAddr _tmStatusToSet;
 
-    public override void Configure(JObject options)
+    public override void Configure(WorkerOptions options)
     {
-        if (options == null)
-        {
-            throw new Exception("Не заданы настройки");
-        }
-        _options = options.ToObject<Options>();
-        new OptionsValidator().ValidateAndThrow(_options);
-
-        if (_options?.WorkInterval != null)
-        {
-            SetWorkInterval(_options.WorkInterval.Value);
-        }
+        _options = options.Get<Options>();
+        OptionsGuard.ThrowIfNullOrEmpty(_options.Host, "Host");
+        OptionsGuard.ThrowIfNull(_options.Port, "Port");
+        OptionsGuard.ThrowIfNullOrEmpty(_options.SetStatus, "SetStatus");
 
         if (!TmAddr.TryParse(_options.SetStatus, out _tmStatusToSet, TmType.Status))
         {
@@ -36,25 +28,20 @@ public class PortWorker : Worker
                 "Требуется указать корректный адрес сигнала для установки значения"
             );
         }
+
+        if (_options.WorkInterval != null)
+        {
+            SetWorkInterval(_options.WorkInterval.Value);
+        }
     }
 
     private class Options
     {
-        public string Host { get; set; }
-        public int? Port { get; set; }
-        public string SetStatus { get; set; }
-        public int? Timeout { get; set; }
-        public int? WorkInterval { get; set; }
-    }
-
-    private class OptionsValidator : AbstractValidator<Options>
-    {
-        public OptionsValidator()
-        {
-            RuleFor(o => o.Host).NotNull().NotEmpty();
-            RuleFor(o => o.Port).NotNull().NotEmpty();
-            RuleFor(o => o.SetStatus).NotNull().NotEmpty();
-        }
+        public string Host { get; init; }
+        public int? Port { get; init; }
+        public string SetStatus { get; init; }
+        public int? Timeout { get; init; }
+        public int? WorkInterval { get; init; }
     }
 
     protected override async Task DoWork()

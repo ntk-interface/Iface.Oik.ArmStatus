@@ -4,6 +4,6 @@
 		"Host": "mail.ru",
 		"SetStatus": "24:2:1",
 		"Timeout": "1000",
-		"WorkInteval": "1000"
+		"WorkInterval": "1000"
 	}
 }
