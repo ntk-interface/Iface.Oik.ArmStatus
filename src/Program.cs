@@ -32,14 +32,14 @@ public class Program
                     services.AddSingleton<ICommonInfrastructure, CommonInfrastructure>();
                     services.AddSingleton<ServerService>();
                     services.AddSingleton<ICommonServerService>(provider =>
-                        provider.GetService<ServerService>()
+                        provider.GetRequiredService<ServerService>()
                     );
                     services.AddSingleton<ICfsApi, CfsApi>();
 
                     // регистрация фоновых служб
                     services.AddHostedService<TmStartup>();
                     services.AddSingleton<IHostedService>(provider =>
-                        provider.GetService<ServerService>()
+                        provider.GetRequiredService<ServerService>()
                     );
                     services.AddSingleton<WorkerCache>();
                     if (!services.AddWorkers())

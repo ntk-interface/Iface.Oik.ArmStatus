@@ -11,10 +11,10 @@ public class PingWorker : Worker
     private const int DefaultTimeout = 500;
     private const float PingFailureRoundtripTimeValue = -1;
 
-    private Options _options;
+    private Options _options = null!;
 
-    private TmAddr _tmStatusToSet;
-    private TmAddr _tmAnalogToSet;
+    private TmAddr? _tmStatusToSet;
+    private TmAddr? _tmAnalogToSet;
 
     public override void Configure(WorkerOptions options)
     {
@@ -39,9 +39,9 @@ public class PingWorker : Worker
 
     private class Options
     {
-        public string Host { get; init; }
-        public string SetStatus { get; init; }
-        public string SetAnalog { get; init; }
+        public string Host { get; init; } = null!;
+        public string? SetStatus { get; init; }
+        public string? SetAnalog { get; init; }
         public int? Timeout { get; init; }
         public int? WorkInterval { get; init; }
     }

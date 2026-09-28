@@ -7,9 +7,9 @@ namespace Iface.Oik.ArmStatus;
 
 public sealed class WorkerOptions
 {
-    private readonly JsonNode _node;
+    private readonly JsonNode? _node;
 
-    public WorkerOptions(JsonNode node)
+    public WorkerOptions(JsonNode? node)
     {
         _node = node;
     }

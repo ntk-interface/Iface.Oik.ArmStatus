@@ -11,9 +11,9 @@ public class PortWorker : Worker
 {
     private const int DefaultTimeout = 500;
 
-    private Options _options;
+    private Options _options = null!;
 
-    private TmAddr _tmStatusToSet;
+    private TmAddr _tmStatusToSet = null!;
 
     public override void Configure(WorkerOptions options)
     {
@@ -37,9 +37,9 @@ public class PortWorker : Worker
 
     private class Options
     {
-        public string Host { get; init; }
+        public string Host { get; init; } = null!;
         public int? Port { get; init; }
-        public string SetStatus { get; init; }
+        public string SetStatus { get; init; } = null!;
         public int? Timeout { get; init; }
         public int? WorkInterval { get; init; }
     }
@@ -50,7 +50,7 @@ public class PortWorker : Worker
         {
             using var tcpClient = new TcpClient();
 
-            var conn = tcpClient.BeginConnect(_options.Host, _options.Port.Value, null, null);
+            var conn = tcpClient.BeginConnect(_options.Host, _options.Port!.Value, null, null);
             var isPortOpen = conn.AsyncWaitHandle.WaitOne(_options.Timeout ?? DefaultTimeout);
             tcpClient.EndConnect(conn);
 

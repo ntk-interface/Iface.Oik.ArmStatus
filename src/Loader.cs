@@ -35,8 +35,8 @@ public static class Loader
                 var worker = CreateWorker(allWorkers, name, File.ReadAllText(file));
                 services.AddSingleton<IHostedService>(provider =>
                     worker.Initialize(
-                        provider.GetService<IOikDataApi>(),
-                        provider.GetService<WorkerCache>()
+                        provider.GetRequiredService<IOikDataApi>(),
+                        provider.GetRequiredService<WorkerCache>()
                     )
                 );
 
@@ -73,12 +73,20 @@ public static class Loader
 
     public static Worker CreateWorker(IEnumerable<Type> allWorkers, string name, string configText)
     {
-        var config = JsonSerializer.Deserialize<WorkerConfig>(configText, JsonSettings.Options);
+        var config =
+            JsonSerializer.Deserialize<WorkerConfig>(configText, JsonSettings.Options)
+            ?? throw new Exception("Пустой файл конфигурации");
 
-        var worker = CreateWorkerInstance(allWorkers, config.Worker);
+        var workerName = config.Worker;
+        if (string.IsNullOrWhiteSpace(workerName))
+        {
+            throw new Exception("Не задан обработчик в файле конфигурации");
+        }
+
+        var worker = CreateWorkerInstance(allWorkers, workerName);
         if (worker == null)
         {
-            throw new Exception($"Не найден обработчик {config.Worker}");
+            throw new Exception($"Не найден обработчик {workerName}");
         }
 
         worker.SetName(name).Configure(new WorkerOptions(config.Options));
@@ -86,7 +94,7 @@ public static class Loader
         return worker;
     }
 
-    private static Worker CreateWorkerInstance(IEnumerable<Type> allWorkers, string name)
+    private static Worker? CreateWorkerInstance(IEnumerable<Type> allWorkers, string name)
     {
         var type = allWorkers.FirstOrDefault(t =>
             string.Equals(t.Name, name, StringComparison.OrdinalIgnoreCase)

@@ -16,10 +16,10 @@ public class TmStartup : BackgroundService
     private const string TraceName = "ArmStatus";
     private const string TraceComment = "<Iface.Oik.ArmStatus>";
 
-    private static string _host;
+    private static string _host = null!;
 
     private static int _tmCid;
-    private static TmUserInfo _userInfo;
+    private static TmUserInfo _userInfo = null!;
     private static TmServerFeatures _serverFeatures;
     private static IntPtr _stopEventHandle;
     private static IntPtr _cfCid;

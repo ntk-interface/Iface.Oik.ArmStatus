@@ -9,9 +9,9 @@ namespace Iface.Oik.ArmStatus.Workers;
 
 public class TmClientWorker : Worker
 {
-    private Options _options;
+    private Options _options = null!;
 
-    private TmAddr _tmStatusToSet;
+    private TmAddr _tmStatusToSet = null!;
 
     public override void Configure(WorkerOptions options)
     {
@@ -34,9 +34,9 @@ public class TmClientWorker : Worker
 
     private class Options
     {
-        public string ClientName { get; init; }
-        public string ServerName { get; init; }
-        public string SetStatus { get; init; }
+        public string ClientName { get; init; } = null!;
+        public string? ServerName { get; init; }
+        public string SetStatus { get; init; } = null!;
         public int? WorkInterval { get; init; }
     }
 
@@ -55,7 +55,7 @@ public class TmClientWorker : Worker
     private static bool IsTmClientOnline(
         IEnumerable<TmServer> servers,
         string clientName,
-        string serverName
+        string? serverName
     )
     {
         return servers
@@ -65,7 +65,7 @@ public class TmClientWorker : Worker
             .Any(user => DoesClientNameMatch(user.Name, user.Comment, clientName));
     }
 
-    private static bool DoesServerNameMatch(string serverName, string name)
+    private static bool DoesServerNameMatch(string serverName, string? name)
     {
         if (name == null) // если имя сервера не задано, то подходит любой
         {
