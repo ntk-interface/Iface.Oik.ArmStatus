@@ -9,9 +9,9 @@ namespace Iface.Oik.ArmStatus.Workers;
 
 public class TmServerWorker : Worker
 {
-    private Options _options;
+    private Options _options = null!;
 
-    private TmAddr _tmStatusToSet;
+    private TmAddr _tmStatusToSet = null!;
 
     public override void Configure(WorkerOptions options)
     {
@@ -34,8 +34,8 @@ public class TmServerWorker : Worker
 
     private class Options
     {
-        public string ServerName { get; init; }
-        public string SetStatus { get; init; }
+        public string ServerName { get; init; } = null!;
+        public string SetStatus { get; init; } = null!;
         public int? WorkInterval { get; init; }
     }
 

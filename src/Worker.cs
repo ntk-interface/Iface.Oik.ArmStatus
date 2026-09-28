@@ -10,9 +10,9 @@ namespace Iface.Oik.ArmStatus;
 
 public abstract class Worker : BackgroundService
 {
-    private string _name;
-    private IOikDataApi _api;
-    private WorkerCache _cache;
+    private string _name = null!;
+    private IOikDataApi _api = null!;
+    private WorkerCache _cache = null!;
 
     private int _workInterval = 5000;
 
@@ -64,7 +64,7 @@ public abstract class Worker : BackgroundService
         Tms.PrintError($"{_name}: {message}");
     }
 
-    protected async Task SetStatus(TmAddr tmAddr, int status)
+    protected async Task SetStatus(TmAddr? tmAddr, int status)
     {
         if (tmAddr == null)
         {
@@ -75,7 +75,7 @@ public abstract class Worker : BackgroundService
         await _api.SetStatus(ch, rtu, point, status);
     }
 
-    protected async Task SetAnalog(TmAddr tmAddr, float value)
+    protected async Task SetAnalog(TmAddr? tmAddr, float value)
     {
         if (tmAddr == null)
         {
