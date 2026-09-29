@@ -17,6 +17,9 @@ public class PingWorker : Worker
     private TmAddr? _tmStatusToSet;
     private TmAddr? _tmAnalogToSet;
 
+    public PingWorker(IOikDataApi api, WorkerCache cache)
+        : base(api, cache) { }
+
     public override void Configure(WorkerOptions options)
     {
         _options = options.Get<Options>();

@@ -14,6 +14,9 @@ public class TmClientWorker : Worker
 
     private TmAddr _tmStatusToSet = null!;
 
+    public TmClientWorker(IOikDataApi api, WorkerCache cache)
+        : base(api, cache) { }
+
     public override void Configure(WorkerOptions options)
     {
         _options = options.Get<Options>();
