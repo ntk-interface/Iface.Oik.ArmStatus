@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Iface.Oik.ArmStatus.Util;
 using Iface.Oik.Tm.Interfaces;
@@ -39,7 +40,7 @@ public class TmServerWorker : Worker
         public int? WorkInterval { get; init; }
     }
 
-    protected override async Task DoWork()
+    protected override async Task DoWork(CancellationToken stoppingToken)
     {
         if (IsTmServerOnline(GetTmServers(), _options.ServerName))
         {

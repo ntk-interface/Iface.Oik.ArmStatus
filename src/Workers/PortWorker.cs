@@ -1,6 +1,6 @@
 using System;
-using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using Iface.Oik.ArmStatus.Util;
 using Iface.Oik.Tm.Interfaces;
@@ -44,33 +44,36 @@ public class PortWorker : Worker
         public int? WorkInterval { get; init; }
     }
 
-    protected override async Task DoWork()
+    protected override async Task DoWork(CancellationToken stoppingToken)
     {
+        var host = _options.Host;
+        var port = _options.Port!.Value;
+        var timeout = _options.Timeout ?? DefaultTimeout;
+
+        using var tcpClient = new TcpClient();
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
+        cts.CancelAfter(timeout);
+
         try
         {
-            using var tcpClient = new TcpClient();
+            await tcpClient.ConnectAsync(host, port, cts.Token);
 
-            var conn = tcpClient.BeginConnect(_options.Host, _options.Port!.Value, null, null);
-            var isPortOpen = conn.AsyncWaitHandle.WaitOne(_options.Timeout ?? DefaultTimeout);
-            tcpClient.EndConnect(conn);
-
-            if (isPortOpen)
-            {
-                await SetSuccess(
-                    $"Устройство \"{_options.Host}\" отвечает по порту {_options.Port}"
-                );
-            }
-            else
-            {
-                await SetFailure(
-                    $"Устройство \"{_options.Host}\" НЕ отвечает по порту {_options.Port}"
-                );
-            }
+            await SetSuccess($"Устройство \"{host}\" отвечает по порту {port}");
+        }
+        catch (Exception) when (stoppingToken.IsCancellationRequested)
+        {
+            // остановка приложения — статус не меняем
+        }
+        catch (Exception) when (cts.IsCancellationRequested)
+        {
+            await SetFailure(
+                $"Устройство \"{host}\" НЕ отвечает по порту {port} (таймаут {timeout} мс)"
+            );
         }
         catch (Exception ex)
         {
             await SetFailure(
-                $"Ошибка проверки устройства \"{_options.Host}\" по порту {_options.Port}: {ex.Message}"
+                $"Ошибка проверки устройства \"{host}\" по порту {port}: {ex.Message}"
             );
         }
     }
