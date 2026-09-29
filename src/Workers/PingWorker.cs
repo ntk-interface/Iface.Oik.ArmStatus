@@ -1,5 +1,6 @@
 using System;
 using System.Net.NetworkInformation;
+using System.Threading;
 using System.Threading.Tasks;
 using Iface.Oik.ArmStatus.Util;
 using Iface.Oik.Tm.Interfaces;
@@ -21,8 +22,25 @@ public class PingWorker : Worker
         _options = options.Get<Options>();
         OptionsGuard.ThrowIfNullOrEmpty(_options.Host, "Host");
 
-        TmAddr.TryParse(_options.SetStatus, out _tmStatusToSet, TmType.Status);
-        TmAddr.TryParse(_options.SetAnalog, out _tmAnalogToSet, TmType.Analog);
+        if (
+            !string.IsNullOrWhiteSpace(_options.SetStatus)
+            && !TmAddr.TryParse(_options.SetStatus, out _tmStatusToSet, TmType.Status)
+        )
+        {
+            throw new Exception(
+                "Требуется указать корректный адрес сигнала для установки значения"
+            );
+        }
+
+        if (
+            !string.IsNullOrWhiteSpace(_options.SetAnalog)
+            && !TmAddr.TryParse(_options.SetAnalog, out _tmAnalogToSet, TmType.Analog)
+        )
+        {
+            throw new Exception(
+                "Требуется указать корректный адрес измерения для установки значения"
+            );
+        }
 
         if (_tmStatusToSet == null && _tmAnalogToSet == null)
         {
@@ -46,7 +64,7 @@ public class PingWorker : Worker
         public int? WorkInterval { get; init; }
     }
 
-    protected override async Task DoWork()
+    protected override async Task DoWork(CancellationToken stoppingToken)
     {
         try
         {
@@ -54,7 +72,10 @@ public class PingWorker : Worker
 
             var reply = await pingService.SendPingAsync(
                 _options.Host,
-                _options.Timeout ?? DefaultTimeout
+                TimeSpan.FromMilliseconds(_options.Timeout ?? DefaultTimeout),
+                null,
+                null,
+                stoppingToken
             );
             if (reply.Status == IPStatus.Success)
             {
@@ -67,6 +88,10 @@ public class PingWorker : Worker
             {
                 await SetFailure($"Устройство \"{_options.Host}\" ОФФЛАЙН");
             }
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            // остановка приложения — статус не меняем
         }
         catch (Exception ex)
         {

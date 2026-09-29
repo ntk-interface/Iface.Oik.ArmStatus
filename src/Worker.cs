@@ -44,7 +44,7 @@ public abstract class Worker : BackgroundService
         {
             try
             {
-                await DoWork();
+                await DoWork(stoppingToken);
             }
             catch (Exception ex)
             {
@@ -93,5 +93,5 @@ public abstract class Worker : BackgroundService
 
     public virtual void Configure(WorkerOptions options) { }
 
-    protected abstract Task DoWork();
+    protected abstract Task DoWork(CancellationToken stoppingToken);
 }
