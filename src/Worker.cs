@@ -10,23 +10,22 @@ namespace Iface.Oik.ArmStatus;
 
 public abstract class Worker : BackgroundService
 {
+    private readonly IOikDataApi _api;
+    private readonly WorkerCache _cache;
+
     private string _name = null!;
-    private IOikDataApi _api = null!;
-    private WorkerCache _cache = null!;
 
     private int _workInterval = 5000;
+
+    protected Worker(IOikDataApi api, WorkerCache cache)
+    {
+        _api = api;
+        _cache = cache;
+    }
 
     public Worker SetName(string name)
     {
         _name = name;
-
-        return this;
-    }
-
-    public Worker Initialize(IOikDataApi api, WorkerCache cache)
-    {
-        _api = api;
-        _cache = cache;
 
         return this;
     }

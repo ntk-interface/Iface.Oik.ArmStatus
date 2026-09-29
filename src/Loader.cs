@@ -1,12 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Text.Json;
 using Iface.Oik.ArmStatus.Util;
 using Iface.Oik.Tm.Helpers;
-using Iface.Oik.Tm.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -16,93 +12,74 @@ public static class Loader
 {
     private static readonly string ConfigsPath = Path.Combine(AppContext.BaseDirectory, "configs");
 
-    public static bool AddWorkers(this IServiceCollection services)
+    public static void AddWorkers(this IServiceCollection services)
     {
         if (!Directory.Exists(ConfigsPath))
         {
-            Tms.PrintError("Не найден каталог с файлами конфигурации");
-            return false;
+            throw new Exception("Не найден каталог с файлами конфигурации");
         }
-
-        var allWorkers = FindAllWorkers();
 
         var workersCount = 0;
         foreach (var file in Directory.GetFiles(ConfigsPath, "*.json"))
         {
             var name = Path.GetFileName(file);
-            try
-            {
-                var worker = CreateWorker(allWorkers, name, File.ReadAllText(file));
-                services.AddSingleton<IHostedService>(provider =>
-                    worker.Initialize(
-                        provider.GetRequiredService<IOikDataApi>(),
-                        provider.GetRequiredService<WorkerCache>()
-                    )
-                );
+            var config = ReadConfig(file, name);
 
-                workersCount++;
-            }
-            catch (JsonException ex)
+            var workerName = config.Worker;
+            if (string.IsNullOrWhiteSpace(workerName))
             {
-                Tms.PrintError($"Ошибка JSON при разборе файла {name}: {ex.Message}");
+                throw new Exception($"Не задан обработчик в файле {name}");
             }
-            catch (Exception ex)
-            {
-                Tms.PrintError($"Ошибка при разборе файла {name}: {ex.Message}");
-            }
+
+            services.AddSingleton<IHostedService>(provider =>
+                CreateWorker(provider, name, workerName, config)
+            );
+
+            workersCount++;
         }
 
         if (workersCount == 0)
         {
-            Tms.PrintError("Не найдено ни одного файла конфигурации");
-            return false;
+            throw new Exception("Не найдено ни одного файла конфигурации");
         }
 
         Tms.PrintMessage($"Всего файлов конфигурации: {workersCount}");
-        return true;
     }
 
-    private static List<Type> FindAllWorkers()
+    private static WorkerConfig ReadConfig(string file, string name)
     {
-        return Assembly
-            .GetExecutingAssembly()
-            .GetTypes()
-            .Where(t => t.IsSubclassOf(typeof(Worker)))
-            .ToList();
+        try
+        {
+            var configText = File.ReadAllText(file);
+            return JsonSerializer.Deserialize<WorkerConfig>(configText, JsonSettings.Options)
+                ?? throw new Exception("Пустой файл конфигурации");
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Ошибка при разборе файла {name}: {ex.Message}", ex);
+        }
     }
 
-    public static Worker CreateWorker(IEnumerable<Type> allWorkers, string name, string configText)
+    private static Worker CreateWorker(
+        IServiceProvider provider,
+        string name,
+        string workerName,
+        WorkerConfig config
+    )
     {
-        var config =
-            JsonSerializer.Deserialize<WorkerConfig>(configText, JsonSettings.Options)
-            ?? throw new Exception("Пустой файл конфигурации");
-
-        var workerName = config.Worker;
-        if (string.IsNullOrWhiteSpace(workerName))
+        try
         {
-            throw new Exception("Не задан обработчик в файле конфигурации");
-        }
+            var worker = provider.GetRequiredKeyedService<Worker>(workerName);
+            worker.SetName(name).Configure(new WorkerOptions(config.Options));
 
-        var worker = CreateWorkerInstance(allWorkers, workerName);
-        if (worker == null)
+            return worker;
+        }
+        catch (Exception ex)
         {
-            throw new Exception($"Не найден обработчик {workerName}");
+            throw new Exception(
+                $"Ошибка обработчика {workerName} в файле {name}: {ex.Message}",
+                ex
+            );
         }
-
-        worker.SetName(name).Configure(new WorkerOptions(config.Options));
-
-        return worker;
-    }
-
-    private static Worker? CreateWorkerInstance(IEnumerable<Type> allWorkers, string name)
-    {
-        var type = allWorkers.FirstOrDefault(t =>
-            string.Equals(t.Name, name, StringComparison.OrdinalIgnoreCase)
-        );
-        if (type == null)
-        {
-            return null;
-        }
-        return Activator.CreateInstance(type) as Worker;
     }
 }

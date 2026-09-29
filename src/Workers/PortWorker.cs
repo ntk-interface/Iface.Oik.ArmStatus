@@ -15,6 +15,9 @@ public class PortWorker : Worker
 
     private TmAddr _tmStatusToSet = null!;
 
+    public PortWorker(IOikDataApi api, WorkerCache cache)
+        : base(api, cache) { }
+
     public override void Configure(WorkerOptions options)
     {
         _options = options.Get<Options>();
